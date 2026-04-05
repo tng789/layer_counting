@@ -225,7 +225,9 @@ def analyze_truck_layers_with_type(yolo_coords, img_width=1000, img_height=1000,
             results = []
             final_layers = 0
         
-        print(f"*******\n*  - 最终层数: {final_layers}\n*******")
+        print(f"*******\n调整后各层管桩数量{results}\n最终层数: {final_layers}\n*******")
+
+        return dominant_class_name, final_layers 
 
         # 7. 可视化（用颜色区分层，用形状或大小暗示类别）
 #        plt.figure(figsize=(10, 6))
@@ -249,8 +251,8 @@ def main():
 
         print(f"处理 {yolo_file}:")
         
-        h = 2288
-        w = 4096
+        h = 2288                    #这些地方都要修改，每张图的分辨率需要从图片中获取
+        # w = 4096
         hollow = False
         yolos = []
         with open(yolo_file,"rt") as f:
@@ -267,7 +269,7 @@ def main():
                     continue
         if len(yolos):
             heights = sum([ coord[-1] for coord in yolos])/len(yolos)*h/2.75  
-            analyze_truck_layers_with_type(yolos, img_width=4096, img_height=2288,
+            class_name, layers = analyze_truck_layers_with_type(yolos, img_width=4096, img_height=2288,
                                            x_threshold=320, y_threshold=heights)        
         # if len(rectangulars):
             # analyze_truck_layers(rectangulars)
@@ -278,6 +280,8 @@ def main():
             print("空心管桩")
         else:
             print("实心管桩")
+            
+        #最终要返回的是层数layers、装载类型class_name和是否空心hollow
 
 if __name__ == "__main__":
     main()
