@@ -10,7 +10,7 @@ def analyze_truck_layers(yolo_coords, img_width=1000, img_height=1000,
                          x_threshold=80, y_threshold=20):
     """
     分析多辆卡车的堆叠层数
-    1. 先按X坐标聚类，区分不同车辆
+    1. 先按X,Y坐标聚类，区分不同车辆
     2. 对每辆车单独计算层数
     3. 剔除非顶层的单点层, 这个不再有效
     
@@ -34,9 +34,9 @@ def analyze_truck_layers(yolo_coords, img_width=1000, img_height=1000,
     
     centers = np.array(centers)
     
-    # 1. 按X坐标聚类，区分不同车辆
-    # eps=x_threshold: X轴距离小于这个值的视为同一辆车
-    vehicle_clustering = DBSCAN(eps=x_threshold, min_samples=1).fit(centers[:, 0].reshape(-1, 1))
+    # 1. 按X,Y坐标聚类，区分不同车辆
+    # 使用2D坐标进行聚类，eps参数需要综合考虑x和y方向的距离
+    vehicle_clustering = DBSCAN(eps=np.sqrt(x_threshold**2 + y_threshold**2), min_samples=1).fit(centers)
     vehicle_labels = vehicle_clustering.labels_
     unique_vehicles = np.unique(vehicle_labels)
     
@@ -129,8 +129,9 @@ def analyze_truck_layers_with_type(yolo_coords, img_width=1000, img_height=1000,
     centers = data_points[:, 1:]  # 只取坐标用于聚类
     class_ids = data_points[:, 0].astype(int) # 提取类别ID
 
-    # 2. 按X坐标聚类，区分不同车辆
-    vehicle_clustering = DBSCAN(eps=x_threshold, min_samples=1).fit(centers[:, 0].reshape(-1, 1))
+    # 2. 按X,Y坐标聚类，区分不同车辆
+    # 使用2D坐标进行聚类，eps参数需要综合考虑x和y方向的距离
+    vehicle_clustering = DBSCAN(eps=np.sqrt(x_threshold**2 + y_threshold**2), min_samples=1).fit(centers)
     vehicle_labels = vehicle_clustering.labels_
     
     # 检查是否有需要合并的小簇
@@ -248,8 +249,9 @@ def analyze_truck_layers_with_type(yolo_coords, img_width=1000, img_height=1000,
 #        plt.show()
 
 def main():
-    yolo_dir = Path("d:\\workspace\\tmp\\train8\\labels")
-    for yolo_file in yolo_dir.glob("P0*.txt"):
+    # yolo_dir = Path("d:\\workspace\\tmp\\train8\\labels")
+    yolo_dir = Path("d:\\workspace\\pillar_yolo")
+    for yolo_file in yolo_dir.glob("P00586.txt"):
         # if yolo_file.stem.startswith("class"): continue
 
         print(f"处理 {yolo_file}:")
