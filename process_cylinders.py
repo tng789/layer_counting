@@ -102,7 +102,7 @@ def process_cylinders(lst):
     if layers >=3 and result[-1] < result[-2]: # elif result[-1] == 1:
         print("最底层管桩数量小于倒数第二层，应是误判")
         layers = layers - 1
-    elif layers >= 3 and result[-1] >= sum(result[:-1]):
+    elif layers >= 3 and result[-1] >= sum(result[:-1]) + 1:
         print("最底层管桩数量过多，而上层管桩数量过少，不合常理，应是误判")
         layers = layers - 1
     else:

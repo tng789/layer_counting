@@ -113,8 +113,9 @@ def analyze_truck_layers_with_type(yolo_coords, img_width=1000, img_height=1000,
     - class_names: 类别ID到名称的映射字典
     """
     
+    anlyze_results =[]
     if not yolo_coords:
-        return
+        return anlyze_results
     
     # 1. 数据预处理：转换为像素坐标，并保留类别信息
     data_points = [] # 每个元素是 [class_id, px, py]
@@ -227,7 +228,9 @@ def analyze_truck_layers_with_type(yolo_coords, img_width=1000, img_height=1000,
         
         print(f"*******\n调整后各层管桩数量{results}\n最终层数: {final_layers}\n*******")
 
-        return dominant_class_name, final_layers 
+        anlyze_results.append({"dominant_class_name": dominant_class_name, "final_layers": final_layers, "results": results})
+    
+    return anlyze_results 
 
         # 7. 可视化（用颜色区分层，用形状或大小暗示类别）
 #        plt.figure(figsize=(10, 6))
@@ -245,8 +248,8 @@ def analyze_truck_layers_with_type(yolo_coords, img_width=1000, img_height=1000,
 #        plt.show()
 
 def main():
-    yolo_dir = Path("d:\\workspace\\pillar_yolo")
-    for yolo_file in yolo_dir.glob("P0009*.txt"):
+    yolo_dir = Path("d:\\workspace\\tmp\\train8\\labels")
+    for yolo_file in yolo_dir.glob("P0*.txt"):
         # if yolo_file.stem.startswith("class"): continue
 
         print(f"处理 {yolo_file}:")
@@ -269,17 +272,16 @@ def main():
                     continue
         if len(yolos):
             heights = sum([ coord[-1] for coord in yolos])/len(yolos)*h/2.75  
-            class_name, layers = analyze_truck_layers_with_type(yolos, img_width=4096, img_height=2288,
-                                           x_threshold=320, y_threshold=heights)        
+            results = analyze_truck_layers_with_type(yolos, img_width=4096, img_height=2288,
+                                           x_threshold=280, y_threshold=heights)        
+            print("空心管桩") if hollow else print("实心管桩")
+        else:
+            print("没有检测到管桩")
         # if len(rectangulars):
             # analyze_truck_layers(rectangulars)
         # if len(cylinders):
             # analyze_truck_layers(cylinders)    
         
-        if hollow:
-            print("空心管桩")
-        else:
-            print("实心管桩")
             
         #最终要返回的是层数layers、装载类型class_name和是否空心hollow
 
