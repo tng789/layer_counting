@@ -3,7 +3,7 @@
 
 server段地址：http://ip:8000/predict
 
-具体格式如下：
+返回数据的具体格式如下：
 
 ```json
 [
